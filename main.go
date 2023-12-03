@@ -1,19 +1,32 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "SA"
+	password = "159753"
+	dbname   = "test_01"
+)
+
+var db *sql.DB
 
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST"},
-		AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "Cache-Control", "Access-Control-Allow-Origin"},
+		AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "Cache-Control"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -24,6 +37,13 @@ func main() {
 	router.POST("/albums", postAlbums)
 	router.Run("0.0.0.0:8100")
 
+}
+
+type product struct {
+	id     int
+	name1c string
+	code1c string
+	price  int
 }
 
 // album represents data about a record album.
@@ -43,7 +63,41 @@ var albums = []album{
 
 // getAlbums responds with the list of all albums as JSON.
 func getAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, albums)
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Successfully connected!")
+
+	rows, err := db.Query(`SELECT id, name1c, code1c, price  FROM public."seriesPrice"`)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	product_ := []product{}
+
+	for rows.Next() {
+		p := product{}
+		err := rows.Scan(&p.id, &p.name1c, &p.code1c, &p.price)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		product_ = append(product_, p)
+	}
+	fmt.Println("close")
 }
 
 func postAlbums(c *gin.Context) {
