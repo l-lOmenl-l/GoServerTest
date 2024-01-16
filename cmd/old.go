@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -11,12 +12,24 @@ import (
 	_ "github.com/lib/pq"
 )
 
+/*
 const (
+
 	host     = "192.168.40.135"
 	port     = 5432
 	user     = "pgadmin"
 	password = "159753"
 	dbname   = "3dconst"
+
+)
+*/
+
+const (
+	host     = "127.0.0.1"
+	port     = 5432
+	user     = "SA"
+	password = "159753"
+	dbname   = "test_01"
 )
 
 var db *sql.DB
@@ -36,12 +49,19 @@ func main() {
 
 }
 
+type product_params struct {
+	Series string `json:"series"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
+	Depth  int    `json:"depth"`
+}
+
 type product struct {
 	id     int
 	name   string
 	code   string
+	params product_params
 	price  int
-	name1c string
 }
 
 func getSeriesPrice(c *gin.Context) {
@@ -51,7 +71,8 @@ func getSeriesPrice(c *gin.Context) {
 		panic(err)
 	}
 
-	fmt.Printf("%s", b)
+	closet_params := product_params{}
+	json.Unmarshal([]byte(b), &closet_params)
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -69,7 +90,7 @@ func getSeriesPrice(c *gin.Context) {
 
 	fmt.Println("Successfully connected!")
 
-	rows, err := db.Query(`SELECT id, name, code, price, name1c  FROM public."API_priceseries" WHERE name='экспресс/2400/2400/600/дубмолочный/3-дверныйшкаф/стандарт`)
+	rows, err := db.Query(`SELECT id, name, code, params, price  FROM public."API_priceseries" WHERE params=?`, closet_params)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +100,7 @@ func getSeriesPrice(c *gin.Context) {
 
 	for rows.Next() {
 		p := product{}
-		err := rows.Scan(&p.id, &p.name, &p.code, &p.price, &p.name1c)
+		err := rows.Scan(&p.id, &p.name, &p.code, &p.params, &p.price)
 		if err != nil {
 			fmt.Println(err)
 			continue

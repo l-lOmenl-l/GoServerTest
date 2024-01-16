@@ -1,0 +1,9 @@
+port: "8000"
+
+db:
+    username: "SA"
+    password: "159753"
+    host: "localhost"
+    port: "5432"
+    dbname: "WebConst"
+    sslmode: "disable"

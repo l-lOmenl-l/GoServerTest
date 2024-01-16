@@ -1,1 +1,6 @@
 *.exe
+.env
+env
+*env
+.idea
+.env
