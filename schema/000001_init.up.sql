@@ -4,19 +4,28 @@ CREATE TABLE countries
     name varchar(255) not null
 );
 
-CREATE TABLE dictrict
+INSERT INTO countries(name)
+VALUES ('Россия');
+
+CREATE TABLE district
 (
     id serial primary key,
     name varchar(255) not null,
     country_id int references countries (id) on delete cascade not null
 );
 
+INSERT INTO district(name, country_id)
+VALUES ('Южный', '1');
+
 CREATE TABLE regions
 (
     id serial primary key,
     name varchar(255) not null,
-    dictrict_id int references dictrict (id) on delete cascade not null
+    district_id int references district (id) on delete cascade not null
 );
+
+INSERT INTO regions(name, district_id)
+VALUES ('Краснодарский край', '1');
 
 CREATE TABLE cities
 (
@@ -24,6 +33,10 @@ CREATE TABLE cities
     name varchar(255) not null,
     region_id int references regions (id) on delete cascade not null
 );
+
+INSERT INTO cities(name, region_id)
+VALUES ('Краснодар', '1');
+
 
 CREATE TABLE banks
 (
@@ -36,6 +49,9 @@ CREATE TABLE banks
     active boolean not null
 );
 
+INSERT INTO banks(name, inn, bic, kpp, correspondentCheck, active)
+VALUES ('Тестовый банк', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', true);
+
 CREATE TABLE organizations
 (
     id serial primary key,
@@ -46,11 +62,17 @@ CREATE TABLE organizations
     active boolean not null
 );
 
+INSERT INTO organizations(name, settlementCheck, inn, bank_id, active)
+VALUES ('Тестовый банк', '0000000000000000', '0000000000000000', '1', true);
+
 CREATE TABLE roles
 (
     id serial primary key,
     name varchar(50) not null
 );
+
+INSERT INTO roles(name)
+VALUES ('E1');
 
 CREATE TABLE salon
 (
@@ -61,6 +83,9 @@ CREATE TABLE salon
     role_id int references roles (id) on delete cascade not null,
     active boolean not null
 );
+
+INSERT INTO salon(name, city_id, organization_id, role_id, active)
+VALUES ('Волжский', '1', '1', '1', true);
 
 CREATE TABLE users
 (
@@ -105,3 +130,36 @@ CREATE TABLE rateMeasurement
     intervalFrom float not null,
     IntervalUntil float not null
 );
+
+CREATE TABLE TypeProduct
+(
+    id serial primary key,
+    name varchar(255) not null
+);
+
+CREATE TABLE SeriesCloset
+(
+    id serial primary key,
+    name varchar(255) not null,
+    active boolean not null,
+    typeProduct_id int references TypeProduct (id) on delete cascade not null
+);
+
+CREATE TABLE OptionSeries
+(
+    id serial primary key,
+    name varchar(255) not null,
+    active boolean not null,
+    seriesCloset_id int references SeriesCloset (id) on delete cascade not null
+);
+
+CREATE TABLE SizesOption
+(
+    id serial primary key,
+    amount_section int not null,
+    height int [] not null,
+    width int [] not null,
+    depth int [] not null,
+    optionSeries_id int references OptionSeries (id) on delete cascade not null
+);
+

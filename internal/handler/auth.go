@@ -22,13 +22,13 @@ func (h *Handler) signUp(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{"id": id})
 }
 
-type signInInput struct {
+type signIn struct {
 	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var input signInInput
+	var input signIn
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())

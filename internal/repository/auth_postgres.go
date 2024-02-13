@@ -20,9 +20,9 @@ func (r *AuthPostgres) CreateUser(user domain.User) (int, error) {
 		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id", usersTable)
 	row := r.db.QueryRow(query, user.Login, user.Password, user.Lastname, user.Firstname, user.Fathername, user.Email, user.Active, user.Superuser, user.Staff, user.RegistrationsDate, user.EntryDate, user.Salon)
 	if err := row.Scan(&id); err != nil {
-		return 0, err
+		return id, err
 	}
-	return 0, nil
+	return id, nil
 }
 
 func (r *AuthPostgres) GetUser(login, password string) (domain.User, error) {

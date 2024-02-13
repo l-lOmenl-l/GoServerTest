@@ -18,9 +18,18 @@ DROP TABLE cities;
 
 DROP TABLE regions;
 
-DROP TABLE dictrict;
+DROP TABLE district;
 
 DROP TABLE countries;
+
+DROP TABLE SizesOption;
+
+DROP TABLE OptionSeries;
+
+DROP TABLE SeriesCloset;
+
+DROP TABLE TypeProduct;
+
 
 
 
