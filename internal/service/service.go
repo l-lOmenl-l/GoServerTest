@@ -13,7 +13,7 @@ type Authorization interface {
 
 type Users interface {
 	GetDetail(user_id int) (domain.UserDetail, error)
-	GetAll() ([]domain.AllUsers, error)
+	GetAll() ([]domain.Country, error)
 }
 
 type Closet interface {

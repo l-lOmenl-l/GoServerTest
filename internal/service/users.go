@@ -17,6 +17,6 @@ func (s *UsersService) GetDetail(user_id int) (domain.UserDetail, error) {
 	return s.repo.GetDetail(user_id)
 }
 
-func (s *UsersService) GetAll() ([]domain.AllUsers, error) {
+func (s *UsersService) GetAll() ([]domain.Country, error) {
 	return s.repo.GetAll()
 }

@@ -27,19 +27,87 @@ func (r *UsersPostgres) GetDetail(user_id int) (domain.UserDetail, error) {
 	return userdetail, err
 }
 
-func (r *UsersPostgres) GetAll() ([]domain.AllUsers, error) {
+func (r *UsersPostgres) GetAll() ([]domain.Country, error) {
+	var all []domain.Country
 
-	var allusers []domain.AllUsers
+	var allcountry []domain.Country_
+	var alldistrict []domain.District_
+	var allregions []domain.Region_
+	var allcity []domain.City_
+	var allsalon []domain.Salon_
+	var alluser []domain.User_
 
-	query := fmt.Sprintf("SELECT countries.name as \"country\", district.name as \"district\", regions.name as \"region\", cities.name as \"city\", salon.name as \"salon\", users.login as \"user\" " +
-		"FROM countries " +
-		"inner join district on district.country_id=countries.id " +
-		"inner join regions on regions.district_id=district.id " +
-		"inner join cities on cities.region_id=regions.id " +
-		"inner join salon on salon.city_id = cities.id " +
-		"inner join users on users.salon_id = salon.id ")
+	salon_ := domain.Salon{}
+	city_ := domain.City{}
+	region_ := domain.Region{}
+	district_ := domain.District{}
+	country_ := domain.Country{}
 
-	err := r.db.Select(&allusers, query)
+	query := fmt.Sprintf("SELECT id, name FROM countries")
+	err := r.db.Select(&allcountry, query)
+	if err != nil {
+		return all, err
+	}
 
-	return allusers, err
+	for _, country := range allcountry {
+		query = fmt.Sprintf("SELECT id, name FROM district where country_id=$1")
+		err = r.db.Select(&alldistrict, query, country.Id)
+		if err != nil {
+			return all, err
+		}
+
+		for _, district := range alldistrict {
+			query = fmt.Sprintf("SELECT id, name FROM regions where district_id=$1")
+			err = r.db.Select(&allregions, query, district.Id)
+			if err != nil {
+				return all, err
+			}
+
+			for _, region := range allregions {
+				query = fmt.Sprintf("SELECT id, name FROM cities where region_id=$1")
+				err = r.db.Select(&allcity, query, region.Id)
+				if err != nil {
+					return all, err
+				}
+
+				for _, city := range allcity {
+					query = fmt.Sprintf("SELECT id, name FROM salon where city_id=$1")
+					err = r.db.Select(&allsalon, query, city.Id)
+					if err != nil {
+						return all, err
+					}
+
+					for _, salon := range allsalon {
+						query = fmt.Sprintf("SELECT id, login FROM users where salon_id=$1")
+						err = r.db.Select(&alluser, query, salon.Id)
+						if err != nil {
+							return all, err
+						}
+
+						for _, user := range alluser {
+							salon_[salon.Name] = append(salon_[salon.Name], user.Login)
+						}
+
+						city_[city.Name] = append(city_[city.Name], salon_)
+						salon_ = domain.Salon{}
+					}
+
+				}
+
+				region_[region.Name] = append(region_[region.Name], city_)
+				city_ = domain.City{}
+
+			}
+
+			district_[district.Name] = append(district_[district.Name], region_)
+			region_ = domain.Region{}
+		}
+		country_[country.Name] = append(country_[country.Name], district_)
+		district_ = domain.District{}
+
+		all = append(all, country_)
+		country_ = domain.Country{}
+	}
+
+	return all, err
 }

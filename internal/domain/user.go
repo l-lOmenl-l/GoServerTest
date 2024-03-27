@@ -38,3 +38,39 @@ type AllUsers struct {
 	Salon    string `json:"salon" db:"salon"`
 	User     string `json:"user" db:"user"`
 }
+
+type Salon map[string][]string
+type City map[string][]Salon
+type Region map[string][]City
+type District map[string][]Region
+type Country map[string][]District
+
+type Country_ struct {
+	Id   int    `json:"country_id" db:"id"`
+	Name string `json:"country_name" db:"name"`
+}
+
+type District_ struct {
+	Id   int    `json:"district_id" db:"id"`
+	Name string `json:"country_name" db:"name"`
+}
+
+type Region_ struct {
+	Id   int    `json:"regions_id" db:"id"`
+	Name string `json:"country_name" db:"name"`
+}
+
+type City_ struct {
+	Id   int    `json:"city_id" db:"id"`
+	Name string `json:"country_name" db:"name"`
+}
+
+type Salon_ struct {
+	Id   int    `json:"salon_id" db:"id"`
+	Name string `json:"salon_name" db:"name"`
+}
+
+type User_ struct {
+	Id    int    `json:"user_id" db:"id"`
+	Login string `json:"user_login" db:"login"`
+}
