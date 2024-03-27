@@ -3,6 +3,7 @@ package repository
 import (
 	"example/web-servise-gin/internal/domain"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,98 +17,32 @@ func NewUsersPostgres(db *sqlx.DB) *UsersPostgres {
 
 func (r *UsersPostgres) GetDetail(user_id int) (domain.UserDetail, error) {
 	var userdetail domain.UserDetail
-	query := fmt.Sprintf("SELECT lastname, firstname, fathername, email, users.active, superuser, staff, registrationsdate, entrydate, salon.name as \"salon_name\", cities.name as \"cities_name\" " +
+
+	query := fmt.Sprintf("SELECT lastname, firstname, fathername, email, users.active, superuser, staff, registrationsdate, entrydate, salon.name as \"salon\", cities.name as \"cities\" " +
 		"FROM users " +
 		"inner join salon on users.salon_id=salon.id " +
 		"inner join cities on salon.city_id=cities.id " +
 		"where users.id=$1")
 
 	err := r.db.Get(&userdetail, query, user_id)
-
 	return userdetail, err
 }
 
-func (r *UsersPostgres) GetAll() ([]domain.Country, error) {
-	var all []domain.Country
+func (r *UsersPostgres) GetAll() ([]domain.AllUsers, error) {
 
-	var allcountry []domain.Country_
-	var alldistrict []domain.District_
-	var allregions []domain.Region_
-	var allcity []domain.City_
-	var allsalon []domain.Salon_
-	var alluser []domain.User_
+	var allusers []domain.AllUsers
 
-	salon_ := domain.Salon{}
-	city_ := domain.City{}
-	region_ := domain.Region{}
-	district_ := domain.District{}
-	country_ := domain.Country{}
+	query := fmt.Sprintf("SELECT countries.id AS \"country_id\", countries.name AS \"country\", district.id AS \"district_id\"," +
+		"district.name AS \"district\", regions.id AS \"region_id\", regions.name AS \"region\"," +
+		"cities.id AS \"city_id\", cities.name AS \"city\", salon.id AS \"salon_id\", salon.name AS \"salon\", users.id AS \"user_id\", users.login AS \"user\" " +
+		"FROM users " +
+		"INNER JOIN salon ON users.salon_id=salon.id " +
+		"INNER JOIN cities ON salon.id=cities.id " +
+		"INNER JOIN regions ON regions.id=cities.id " +
+		"INNER JOIN district ON district.id=regions.id " +
+		"INNER JOIN countries ON countries.id=district.id")
 
-	query := fmt.Sprintf("SELECT id, name FROM countries")
-	err := r.db.Select(&allcountry, query)
-	if err != nil {
-		return all, err
-	}
+	err := r.db.Select(&allusers, query)
 
-	for _, country := range allcountry {
-		query = fmt.Sprintf("SELECT id, name FROM district where country_id=$1")
-		err = r.db.Select(&alldistrict, query, country.Id)
-		if err != nil {
-			return all, err
-		}
-
-		for _, district := range alldistrict {
-			query = fmt.Sprintf("SELECT id, name FROM regions where district_id=$1")
-			err = r.db.Select(&allregions, query, district.Id)
-			if err != nil {
-				return all, err
-			}
-
-			for _, region := range allregions {
-				query = fmt.Sprintf("SELECT id, name FROM cities where region_id=$1")
-				err = r.db.Select(&allcity, query, region.Id)
-				if err != nil {
-					return all, err
-				}
-
-				for _, city := range allcity {
-					query = fmt.Sprintf("SELECT id, name FROM salon where city_id=$1")
-					err = r.db.Select(&allsalon, query, city.Id)
-					if err != nil {
-						return all, err
-					}
-
-					for _, salon := range allsalon {
-						query = fmt.Sprintf("SELECT id, login FROM users where salon_id=$1")
-						err = r.db.Select(&alluser, query, salon.Id)
-						if err != nil {
-							return all, err
-						}
-
-						for _, user := range alluser {
-							salon_[salon.Name] = append(salon_[salon.Name], user.Login)
-						}
-
-						city_[city.Name] = append(city_[city.Name], salon_)
-						salon_ = domain.Salon{}
-					}
-
-				}
-
-				region_[region.Name] = append(region_[region.Name], city_)
-				city_ = domain.City{}
-
-			}
-
-			district_[district.Name] = append(district_[district.Name], region_)
-			region_ = domain.Region{}
-		}
-		country_[country.Name] = append(country_[country.Name], district_)
-		district_ = domain.District{}
-
-		all = append(all, country_)
-		country_ = domain.Country{}
-	}
-
-	return all, err
+	return allusers, err
 }

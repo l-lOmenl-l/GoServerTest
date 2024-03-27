@@ -31,12 +31,18 @@ type UserDetail struct {
 }
 
 type AllUsers struct {
-	Country  string `json:"country" db:"country"`
-	District string `json:"district" db:"district"`
-	Region   string `json:"region" db:"region"`
-	City     string `json:"city"  db:"city"`
-	Salon    string `json:"salon" db:"salon"`
-	User     string `json:"user" db:"user"`
+	Country_id  int    `json:"country_id" db:"country_id"`
+	Country     string `json:"country" db:"country"`
+	District_id int    `json:"district_id" db:"district_id"`
+	District    string `json:"district" db:"district"`
+	Region_id   string `json:"region_id" db:"region_id"`
+	Region      string `json:"region" db:"region"`
+	City_id     string `json:"city_id"  db:"city_id"`
+	City        string `json:"city"  db:"city"`
+	Salon_id    string `json:"salon_id" db:"salon_id"`
+	Salon       string `json:"salon" db:"salon"`
+	User_id     string `json:"user_id" db:"user_id"`
+	User        string `json:"user" db:"user"`
 }
 
 type Salon map[string][]string
