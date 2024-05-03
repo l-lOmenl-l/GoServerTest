@@ -12,7 +12,8 @@ import (
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
+	UserId int    `json:"user_id"`
+	Temp   string `json:"temp"`
 }
 
 type AuthService struct {
@@ -43,8 +44,10 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 		IssuedAt:  time.Now().Unix(),
+		Subject:   "Ortem",
 	},
 		user.Id,
+		"It's work",
 	},
 	)
 
