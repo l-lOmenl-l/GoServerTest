@@ -7,8 +7,8 @@ import (
 
 type Authorization interface {
 	CreateUser(user domain.User) (int, error)
-	GenerateToken(login, password string) (string, error)
-	ParseToken(token string) (int, error)
+	GenerateToken(domain.SignIn) (string, error)
+	ParseToken(token string) (string, error)
 }
 
 type Users interface {

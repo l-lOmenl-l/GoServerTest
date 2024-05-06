@@ -12,8 +12,9 @@ import (
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int    `json:"user_id"`
-	Temp   string `json:"temp"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phoneNumber"`
+	FullName    string `json:"fullName"`
 }
 
 type AuthService struct {
@@ -23,7 +24,7 @@ type AuthService struct {
 const (
 	salt       = "greafgho3234wef"
 	signingKey = "wefw34efwsgasdlj342kghlswei"
-	tokenTTL   = 12 * time.Hour
+	tokenTTL   = 1 * time.Hour
 )
 
 func NewAuthService(repo repository.Authorization) *AuthService {
@@ -35,26 +36,41 @@ func (s *AuthService) CreateUser(user domain.User) (int, error) {
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) GenerateToken(login, password string) (string, error) {
-	user, err := s.repo.GetUser(login, generatePasswordHash(password))
-	if err != nil {
-		return "", err
-	}
+func (s *AuthService) GenerateToken(inf domain.SignIn) (string, error) {
+	//user, err := s.repo.GetUser(login, generatePasswordHash(password))
+	//if err != nil {
+	//	return "", err
+	//}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 		IssuedAt:  time.Now().Unix(),
-		Subject:   "Ortem",
 	},
-		user.Id,
-		"It's work",
+		inf.Address,
+		inf.PhoneNumber,
+		inf.FIO,
 	},
 	)
+	strToken, err := token.SignedString([]byte(signingKey))
+	if err != nil {
+		return "", err
+	}
 
-	return token.SignedString([]byte(signingKey))
+	err = s.repo.SaveToken(strToken)
+	if err != nil {
+		return "", err
+	}
+
+	return strToken, nil
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, error) {
+func (s *AuthService) ParseToken(accessToken string) (string, error) {
+
+	err := s.repo.IdentifyToken(accessToken)
+	if err != nil {
+		return "", errors.New("token don't find")
+	}
+
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
@@ -63,15 +79,15 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 		return []byte(signingKey), nil
 	})
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
+		return "", errors.New("token claims are not of type *tokenClaims")
 	}
 
-	return claims.UserId, nil
+	return claims.FullName, nil
 }
 
 func generatePasswordHash(password string) string {

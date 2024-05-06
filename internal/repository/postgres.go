@@ -9,6 +9,7 @@ const (
 	usersTable       = "users"
 	salonTable       = "salon"
 	typeProductTable = "typeproduct"
+	TokenTable       = "JWT_Storage"
 )
 
 type Config struct {

@@ -163,3 +163,9 @@ CREATE TABLE SizesOption
     optionSeries_id int references OptionSeries (id) on delete cascade not null
 );
 
+CREATE TABLE JWT_Storage
+(
+  id serial primary key,
+  token varchar(1000) not null
+);
+

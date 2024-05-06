@@ -30,8 +30,7 @@ DROP TABLE SeriesCloset;
 
 DROP TABLE TypeProduct;
 
-
-
+DROP TABLE JWT_Storage;
 
 
 

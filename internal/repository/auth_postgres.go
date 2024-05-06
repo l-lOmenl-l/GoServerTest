@@ -32,3 +32,23 @@ func (r *AuthPostgres) GetUser(login, password string) (domain.User, error) {
 
 	return user, err
 }
+
+func (r *AuthPostgres) SaveToken(token string) error {
+	var id int
+	query := fmt.Sprintf("INSERT INTO %s (token) values ($1) RETURNING id", TokenTable)
+	row := r.db.QueryRow(query, token)
+	if err := row.Scan(&id); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *AuthPostgres) IdentifyToken(token string) error {
+	var id int
+	query := fmt.Sprintf("SELECT id FROM %s WHERE token=$1", TokenTable)
+	item := r.db.QueryRow(query, token)
+	if err := item.Scan(&id); err != nil {
+		return err
+	}
+	return nil
+}
