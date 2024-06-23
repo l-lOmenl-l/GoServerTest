@@ -6,6 +6,15 @@ import (
 	"net/http"
 )
 
+// @Summary SignUp
+// @Tags auth
+// @Description create user
+// @ID create-user
+// @Accept json
+// @Produce json
+// @Param input body domain.User true "user info"
+// @Router /auth/sign-up [post]
+
 func (h *Handler) signUp(c *gin.Context) {
 	var input domain.User
 
@@ -22,6 +31,14 @@ func (h *Handler) signUp(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{"id": id})
 }
 
+// @Summary SignIn
+// @Tags auth
+// @Description login
+// @ID user-login
+// @Accept json
+// @Produce json
+// @Param input body domain.SignIn true "credentials"
+// @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	var input domain.SignIn
 

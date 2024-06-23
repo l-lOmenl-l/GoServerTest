@@ -12,6 +12,12 @@ import (
 	"os"
 )
 
+// @title WebConst_BackEnd
+// @version dev
+// @description API Server for WebConst
+
+// @host localhost:8000
+
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 	if err := initConfig(); err != nil {
