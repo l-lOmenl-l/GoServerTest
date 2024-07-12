@@ -12,9 +12,15 @@ import (
 
 type tokenClaims struct {
 	jwt.StandardClaims
+	Place       string `json:"place"`
 	Address     string `json:"address"`
 	PhoneNumber string `json:"phoneNumber"`
 	FullName    string `json:"fullName"`
+}
+
+type tokenClaimsSRS struct {
+	jwt.StandardClaims
+	domain.User
 }
 
 type AuthService struct {
@@ -31,37 +37,62 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUser(user domain.User) (int, error) {
+func (s *AuthService) CreateUser(user domain.SignUp) (int, error) {
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
 
 func (s *AuthService) GenerateToken(inf domain.SignIn) (string, error) {
-	//user, err := s.repo.GetUser(login, generatePasswordHash(password))
-	//if err != nil {
-	//	return "", err
-	//}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
-		IssuedAt:  time.Now().Unix(),
-	},
-		inf.Address,
-		inf.PhoneNumber,
-		inf.FIO,
-	},
-	)
-	strToken, err := token.SignedString([]byte(signingKey))
-	if err != nil {
-		return "", err
+	if inf.Place == "SRS" {
+		user, err := s.repo.GetUser(inf.Login, generatePasswordHash(inf.Password))
+		if err != nil {
+			return "", err
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaimsSRS{jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+			user,
+		},
+		)
+		strToken, err := token.SignedString([]byte(signingKey))
+		if err != nil {
+			return "", err
+		}
+
+		err = s.repo.SaveToken(strToken)
+		if err != nil {
+			return "", err
+		}
+
+		return strToken, nil
+
+	} else {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+			inf.Place,
+			inf.Address,
+			inf.PhoneNumber,
+			inf.FIO,
+		},
+		)
+		strToken, err := token.SignedString([]byte(signingKey))
+		if err != nil {
+			return "", err
+		}
+
+		err = s.repo.SaveToken(strToken)
+		if err != nil {
+			return "", err
+		}
+
+		return strToken, nil
 	}
 
-	err = s.repo.SaveToken(strToken)
-	if err != nil {
-		return "", err
-	}
-
-	return strToken, nil
 }
 
 func (s *AuthService) ParseToken(accessToken string) (string, error) {

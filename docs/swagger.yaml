@@ -1,0 +1,86 @@
+definitions:
+  domain.SignIn:
+    properties:
+      address:
+        type: string
+      fio:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      phonenumber:
+        type: string
+      place:
+        type: string
+    required:
+    - place
+    type: object
+  domain.SignUp:
+    properties:
+      email:
+        type: string
+      fathername:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      salon:
+        type: integer
+    required:
+    - email
+    - fathername
+    - firstname
+    - lastname
+    - login
+    - password
+    - salon
+    type: object
+info:
+  contact: {}
+  description: This is a sample server celler server.
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Auth User
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignIn'
+      produces:
+      - application/json
+      responses: {}
+      summary: Auth User
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Registry User
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignUp'
+      produces:
+      - application/json
+      responses: {}
+      summary: Registry User
+      tags:
+      - Auth
+swagger: "2.0"

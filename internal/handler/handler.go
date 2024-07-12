@@ -1,10 +1,11 @@
 package handler
 
 import (
+	_ "example/web-servise-gin/docs"
 	"example/web-servise-gin/internal/service"
 	"github.com/gin-gonic/gin"
-
-	_ "github.com/omen/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -18,7 +19,7 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.Use(CORSMiddleware())
 
 	auth := router.Group("/auth")
 	{
@@ -37,5 +38,20 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		closet.POST("/addTypeProduct", h.addTypeProduct)
 	}
 
+	swagger := router.Group("/swagger")
+	{
+		swagger.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
 	return router
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+		c.Next()
+	}
 }

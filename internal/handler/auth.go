@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// @Summary SignUp
-// @Tags auth
-// @Description create user
-// @ID create-user
-// @Accept json
-// @Produce json
-// @Param input body domain.User true "user info"
-// @Router /auth/sign-up [post]
-
+// RegistryUser Registry User
+//
+//	@Summary		Registry User
+//	@Description	Registry User
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		domain.SignUp	true	"credentials"
+//	@Router			/auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	var input domain.User
+	var input domain.SignUp
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -31,14 +31,15 @@ func (h *Handler) signUp(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{"id": id})
 }
 
-// @Summary SignIn
-// @Tags auth
-// @Description login
-// @ID user-login
-// @Accept json
-// @Produce json
-// @Param input body domain.SignIn true "credentials"
-// @Router /auth/sign-in [post]
+// AuthUser Auth User
+//
+//	@Summary		Auth User
+//	@Description	Auth User
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		domain.SignIn	true	"credentials"
+//	@Router			/auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	var input domain.SignIn
 

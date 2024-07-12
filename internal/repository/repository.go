@@ -6,7 +6,7 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(user domain.User) (int, error)
+	CreateUser(user domain.SignUp) (int, error)
 	GetUser(login, password string) (domain.User, error)
 	SaveToken(token string) error
 	IdentifyToken(token string) error

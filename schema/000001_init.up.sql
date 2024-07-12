@@ -99,8 +99,8 @@ CREATE TABLE users
     active boolean not null,
     superuser boolean not null,
     staff boolean not null,
-    registrationsDate DATE,
-    entryDate DATE,
+    registrationsDate timestamp with time zone,
+    entryDate timestamp with time zone,
     salon_id int references salon (id) on delete cascade not null
 );
 

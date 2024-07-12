@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "example/web-servise-gin/docs"
 	"example/web-servise-gin/internal/handler"
 	"example/web-servise-gin/internal/repository"
 	"example/web-servise-gin/internal/server"
@@ -12,11 +13,9 @@ import (
 	"os"
 )
 
-// @title WebConst_BackEnd
-// @version dev
-// @description API Server for WebConst
-
-// @host localhost:8000
+//	@title			Swagger Example API
+//	@version		1.0
+//	@description	This is a sample server celler server.
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
